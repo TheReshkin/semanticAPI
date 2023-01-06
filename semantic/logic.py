@@ -9,7 +9,7 @@ from semantic.dataset import load_word_vectors
 
 
 @dataclass
-class SemantleStepInfo:
+class SemanticStepInfo:
     guess: str
     similarity: float
     success: bool = False
@@ -33,7 +33,7 @@ def _choose_random_word(seed: Optional[int] = None) -> str:
     return random.choice(word_bank)
 
 
-class Semantle:
+class Semantic:
     def __init__(self, seed: Optional[int] = None, silent: bool = False):
         self._word = _choose_random_word(seed=seed)
         self.silent = silent
@@ -41,7 +41,7 @@ class Semantle:
         self._step = 1
         self._success = False
 
-    def _print_step_info(self, info: SemantleStepInfo):
+    def _print_step_info(self, info: SemanticStepInfo):
         print(f"Similarity: {info.similarity:.2f}")
         print("\n")
         if info.success:
@@ -51,10 +51,10 @@ class Semantle:
     def done(self):
         return self._success
 
-    def step(self, guess: str) -> SemantleStepInfo:
+    def step(self, guess: str) -> SemanticStepInfo:
         similarity = _word_similarity(guess, self._word)
         self._success = guess == self._word
-        info = SemantleStepInfo(
+        info = SemanticStepInfo(
             guess=guess, similarity=similarity, success=self._success,
         )
 
@@ -66,7 +66,7 @@ class Semantle:
         return info
 
     def play(self):
-        print("Semantle!\n")
+        print("Semantic!\n")
 
         while not self.done:
             print(f"Step {self._step}")
@@ -78,7 +78,7 @@ class Semantle:
 
 
 def main():
-    Semantle().play()
+    Semantic().play()
 
 
 if __name__ == "__main__":
