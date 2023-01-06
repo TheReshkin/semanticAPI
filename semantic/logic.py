@@ -25,6 +25,7 @@ def _word_similarity(guess: str, target: str) -> float:
     return abs(round(out.item() * 100, 2))
 
 
+# выбор случайного слово в зависимости от времени
 def _choose_random_word(seed: Optional[int] = None) -> str:
     word_bank = list(load_word_vectors().keys())
     if seed is None:
