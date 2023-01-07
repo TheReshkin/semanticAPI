@@ -90,10 +90,14 @@ if __name__ == "__main__":
 
 async def next_guess(ex_number: str, guess: str):
     exercise = await user.find_exercise(ex_number)
-    print(exercise)
     if exercise != "No such exercise":
         guess_sim = await _word_similarity(guess, exercise["secret_word"])
-        await user.add_step(ex_number)
-        return guess_sim
+        if guess_sim == 100.0:
+            step = await user.find_step(ex_number)
+            await user.solve_exercise(ex_number)
+            return guess_sim, step
+        else:
+            step = await user.add_step(ex_number)
+            return guess_sim, step
     else:
         return "No such exercise"

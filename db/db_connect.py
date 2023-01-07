@@ -30,7 +30,7 @@ def find_collection(collection, elements, multiple=False):
         return collection.find_one(elements)
 
 
-def update_document(collection, query_elements, new_values):
+def update_collection(collection, query_elements, new_values):
     """ Function to update a single document in a collection.
     """
     collection.update_one(query_elements, {'$set': new_values})

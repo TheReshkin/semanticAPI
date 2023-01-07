@@ -3,6 +3,7 @@ from typing import Union, Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from uuid import uuid4
+from bson import ObjectId
 
 from db import db_connect
 from db.db_connect import users_collection
@@ -61,9 +62,17 @@ async def find_user(token: str):
 
 
 async def find_exercise(exercise_num):
-    _exercise = db_connect.find_collection(exercises_collection, {'_id': exercise_num})
+    _exercise = db_connect.find_collection(exercises_collection, {'_id': ObjectId(exercise_num)})
     if _exercise is not None:
         return _exercise
+    else:
+        return "No such exercise"
+
+
+async def find_ex_creator(exercise_num: str):
+    _exercise = db_connect.find_collection(exercises_collection, {'_id': ObjectId(exercise_num)})
+    if _exercise is not None:
+        return _exercise["username"]
     else:
         return "No such exercise"
 
@@ -78,10 +87,23 @@ async def create_exercise(secret_word: str, username: str):
     return db_connect.insert_collection(exercises_collection, data)
 
 
-async def add_step(exercise_num: str):
-    _exercise = db_connect.find_collection(exercises_collection, {'_id': exercise_num})
+async def add_step(ex_number: str):
+    _exercise = db_connect.find_collection(exercises_collection, {'_id': ObjectId(ex_number)})
     if _exercise is not None:
         step = _exercise["step"] + 1
-        db_connect.update_document(exercises_collection, {"_id": exercise_num}, {"step": step})
+        db_connect.update_collection(exercises_collection, {"_id": ObjectId(ex_number)}, {"step": step})
+        return step
+    else:
+        return "No such exercise"
+
+
+async def solve_exercise(ex_number):
+    db_connect.update_collection(exercises_collection, {'_id': ObjectId(ex_number)}, {'status': True})
+
+
+async def find_step(ex_number):
+    _exercise = db_connect.find_collection(exercises_collection, {'_id': ObjectId(ex_number)})
+    if _exercise is not None:
+        return _exercise["step"]
     else:
         return "No such exercise"

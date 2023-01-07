@@ -5,6 +5,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 # from fastapi.security import OAuth2PasswordRequestForm
 from user_data import user
 import semantic
+
 app = FastAPI()
 
 
@@ -25,15 +26,26 @@ async def start_game(token: str, word: str):
     # добавить рандомайзер слов
     ex_number = await user.create_exercise("boy", user_name)
     similarity = await semantic.logic.next_guess(ex_number, word)
-    return {"Guess: ": word, "Similarity: ": similarity}
-
-
-@app.get("/similarity")
-async def word_similarity(word: str):
-    return {semantic.logic._word_similarity('boy', word)}
+    return {"Guess: ": word, "Similarity: ": similarity, "Exercise num:": str(ex_number)}
 
 
 @app.get("/next_guess")
-async def next_guess(form_data:  user.User = Depends()):
-    await semantic.logic.next_guess()
-    return {"username": form_data.username, "token": form_data.token, "exercise": form_data.exercise}
+async def guess_next(token: str, ex_number: str, word: str):
+    username = await user.find_user(token)
+    ex_creator = await user.find_ex_creator(ex_number)
+    print(username, ex_creator)
+    if username == ex_creator:
+        sim_step = await semantic.logic.next_guess(ex_number, word)
+        return {"Guess: ": word, "Similarity: ": sim_step[0], "Step:": sim_step[1], "Exercise num:": str(ex_number)}
+    elif ex_creator == "No such exercise":
+        return "No such exercise"
+    elif username != ex_creator:
+        return "You have no access to this exercise"
+    else:
+        return "Something went wrong"
+
+
+@app.get("/get_my_stats")
+async def stats(token: str):
+    stat = ""
+    return {"Guess: ": stat}
