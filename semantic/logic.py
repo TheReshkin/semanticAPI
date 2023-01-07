@@ -7,6 +7,8 @@ import numpy as np
 
 from semantic.dataset import load_word_vectors
 
+from user_data import user
+
 
 @dataclass
 class SemanticStepInfo:
@@ -18,7 +20,7 @@ class SemanticStepInfo:
         return hash(f"{self.guess}{self.similarity:.2f}{self.success}")
 
 
-def _word_similarity(guess: str, target: str) -> float:
+async def _word_similarity(guess: str, target: str) -> float:
     vectors = load_word_vectors()
     v1, v2 = vectors[guess], vectors[target]
     out = np.dot(v1, v2)
@@ -84,3 +86,14 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+async def next_guess(ex_number: str, guess: str):
+    exercise = await user.find_exercise(ex_number)
+    print(exercise)
+    if exercise != "No such exercise":
+        guess_sim = await _word_similarity(guess, exercise["secret_word"])
+        await user.add_step(ex_number)
+        return guess_sim
+    else:
+        return "No such exercise"
