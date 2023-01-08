@@ -9,23 +9,6 @@ from db import db_connect
 from db.db_connect import users_collection
 from db.db_connect import exercises_collection
 
-users = {
-    "pupochek": {
-        "username": "pupochek",
-        "token": "pupochek",
-        "exercise_number": 1
-    }
-}
-exercises = {
-    "1": {
-        "exercise_num": 1,
-        "secret_word": "human",
-        "step": 0,
-        "username": "pupkin",
-        "status": False
-    }
-}
-
 
 class Exercise(BaseModel):
     secret_word: str
@@ -37,7 +20,7 @@ class Exercise(BaseModel):
 class User(BaseModel):
     username: str
     token: str
-    exercise: int
+    exercise: str
 
 
 async def sign_in(username: str):
@@ -59,6 +42,11 @@ async def sign_in(username: str):
 async def find_user(token: str):
     _user = db_connect.find_collection(users_collection, {'token': token})
     return _user['username']
+
+
+async def find_user_stats(token: str):
+    _user = db_connect.find_collection(users_collection, {'token': token})
+    return _user['username'], _user['score'], _user['exercise_number']
 
 
 async def find_exercise(exercise_num):

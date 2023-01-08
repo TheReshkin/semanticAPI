@@ -80,18 +80,14 @@ class Semantic:
                 print("\nWORD NOT RECOGNIZED. Please try again.")
 
 
-def main():
-    Semantic().play()
-
-
-if __name__ == "__main__":
-    main()
-
-
 async def next_guess(ex_number: str, guess: str):
     exercise = await user.find_exercise(ex_number)
     if exercise != "No such exercise":
-        guess_sim = await _word_similarity(guess, exercise["secret_word"])
+        try:
+            guess_sim = await _word_similarity(guess.lower().strip(), exercise["secret_word"])
+        except KeyError:
+            return "WORD NOT RECOGNIZED. Please try again."
+        # guess_sim = await _word_similarity(guess.lower().strip(), exercise["secret_word"])
         if guess_sim == 100.0:
             step = await user.find_step(ex_number)
             await user.solve_exercise(ex_number)

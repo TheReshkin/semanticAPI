@@ -20,7 +20,7 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/start")
+@app.get("/start_new_game")
 async def start_game(token: str, word: str):
     user_name = await user.find_user(token)
     # добавить рандомайзер слов
@@ -47,5 +47,11 @@ async def guess_next(token: str, ex_number: str, word: str):
 
 @app.get("/get_my_stats")
 async def stats(token: str):
-    stat = ""
-    return {"Guess: ": stat}
+    response = await user.find_user_stats(token)
+    return {"username": response[0], "score": response[1], "ex_number": response[2]}
+
+
+@app.get("/get_last_exercise")
+async def last_exercise(token: str):
+    ex_number = ""
+    return {"Exercise number: ": ex_number}
