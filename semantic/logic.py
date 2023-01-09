@@ -36,53 +36,10 @@ def _choose_random_word(seed: Optional[int] = None) -> str:
     return random.choice(word_bank)
 
 
-class Semantic:
-    def __init__(self, seed: Optional[int] = None, silent: bool = False):
-        self._word = _choose_random_word(seed=seed)
-        self.silent = silent
-
-        self._step = 1
-        self._success = False
-
-    def _print_step_info(self, info: SemanticStepInfo):
-        print(f"Similarity: {info.similarity:.2f}")
-        print("\n")
-        if info.success:
-            print("You win! :)")
-
-    @property
-    def done(self):
-        return self._success
-
-    def step(self, guess: str) -> SemanticStepInfo:
-        similarity = _word_similarity(guess, self._word)
-        self._success = guess == self._word
-        info = SemanticStepInfo(
-            guess=guess, similarity=similarity, success=self._success,
-        )
-
-        if not self._success:
-            self._step += 1
-        if not self.silent:
-            self._print_step_info(info)
-
-        return info
-
-    def play(self):
-        print("Semantic!\n")
-
-        while not self.done:
-            print(f"Step {self._step}")
-            guess = input("Enter a guess: ").lower().strip()
-            try:
-                _ = self.step(guess)
-            except KeyError:
-                print("\nWORD NOT RECOGNIZED. Please try again.")
-
-
-async def next_guess(ex_number: str, guess: str):
+async def next_guess(token: str, ex_number: str, guess: str):
     exercise = await user.find_exercise(ex_number)
     if exercise != "No such exercise":
+        await user.user_set_exercise(token, ex_number)
         try:
             guess_sim = await _word_similarity(guess.lower().strip(), exercise["secret_word"])
         except KeyError:

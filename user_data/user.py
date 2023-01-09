@@ -87,6 +87,15 @@ async def add_step(ex_number: str):
 
 async def solve_exercise(ex_number):
     db_connect.update_collection(exercises_collection, {'_id': ObjectId(ex_number)}, {'status': True})
+    _exercise = db_connect.find_collection(exercises_collection, {'_id': ObjectId(ex_number)})
+    if _exercise is not None:
+        username = _exercise["username"]
+        _user = db_connect.find_collection(users_collection, {'username': username})
+        score = _user["score"] + 1
+        db_connect.update_collection(users_collection, {'username': username}, {"score": score})
+        return "Ok"
+    else:
+        return "No such exercise"
 
 
 async def find_step(ex_number):
@@ -95,3 +104,7 @@ async def find_step(ex_number):
         return _exercise["step"]
     else:
         return "No such exercise"
+
+
+async def user_set_exercise(user_token, ex_number: str):
+    db_connect.update_collection(users_collection, {'token': user_token}, {'exercise_number': ObjectId(ex_number)})

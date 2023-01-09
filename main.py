@@ -23,9 +23,9 @@ async def root():
 @app.get("/start_new_game")
 async def start_game(token: str, word: str):
     user_name = await user.find_user(token)
-    # добавить рандомайзер слов
+    # слова выбираются случайно, но здесь для упрощения демонстрации остановился на конкретном
     ex_number = await user.create_exercise("boy", user_name)
-    similarity = await semantic.logic.next_guess(ex_number, word)
+    similarity = await semantic.logic.next_guess(token, ex_number, word)
     return {"Guess: ": word, "Similarity: ": similarity, "Exercise num:": str(ex_number)}
 
 
@@ -35,7 +35,7 @@ async def guess_next(token: str, ex_number: str, word: str):
     ex_creator = await user.find_ex_creator(ex_number)
     print(username, ex_creator)
     if username == ex_creator:
-        sim_step = await semantic.logic.next_guess(ex_number, word)
+        sim_step = await semantic.logic.next_guess(token, ex_number, word)
         return {"Guess: ": word, "Similarity: ": sim_step[0], "Step:": sim_step[1], "Exercise num:": str(ex_number)}
     elif ex_creator == "No such exercise":
         return "No such exercise"
@@ -48,10 +48,12 @@ async def guess_next(token: str, ex_number: str, word: str):
 @app.get("/get_my_stats")
 async def stats(token: str):
     response = await user.find_user_stats(token)
-    return {"username": response[0], "score": response[1], "ex_number": response[2]}
+    return {"username": response[0], "score": response[1], "ex_number": str(response[2])}
 
 
 @app.get("/get_last_exercise")
 async def last_exercise(token: str):
-    ex_number = ""
-    return {"Exercise number: ": ex_number}
+    response = await user.find_user_stats(token)
+    if response[2] is not None:
+        return {"exercise number": response[2]}
+    return "No exercise were found"
