@@ -10,16 +10,6 @@ from semantic.dataset import load_word_vectors
 from user_data import user
 
 
-@dataclass
-class SemanticStepInfo:
-    guess: str
-    similarity: float
-    success: bool = False
-
-    def __hash__(self) -> int:
-        return hash(f"{self.guess}{self.similarity:.2f}{self.success}")
-
-
 async def _word_similarity(guess: str, target: str) -> float:
     vectors = load_word_vectors()
     v1, v2 = vectors[guess], vectors[target]
